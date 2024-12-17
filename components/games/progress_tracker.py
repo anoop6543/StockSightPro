@@ -150,13 +150,25 @@ def check_achievements(user_id: int):
                 
                 # Award new achievements
                 for achievement in achievements:
-                    cur.execute("""
-                        INSERT INTO achievements (user_id, achievement_name)
-                        VALUES (%s, %s)
-                        ON CONFLICT (user_id, achievement_name) DO NOTHING
-                    """, (user_id, achievement))
+                    # Check if achievement already exists
+                cur.execute("""
+                    INSERT INTO achievements (user_id, achievement_name)
+                    VALUES (%s, %s)
+                    ON CONFLICT (user_id, achievement_name) DO NOTHING
+                    RETURNING id
+                """, (user_id, achievement[0]))
+                
+                # If new achievement was inserted (not existing), trigger celebration
+                if cur.fetchone() is not None:
+                    from ..celebrations import trigger_celebration
+                    trigger_celebration(achievement[0], achievement[1])
                 
                 conn.commit()
+                
+                # Check for point milestones
+                if points >= 100 and points % 100 == 0:
+                    from ..celebrations import display_milestone_animation
+                    display_milestone_animation(points, points)
     except psycopg2.Error as e:
         st.error(f"Error checking achievements: {str(e)}")
 

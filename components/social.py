@@ -63,12 +63,5 @@ def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: Optiona
     
     with col3:
         if st.button("📋 Copy Analysis"):
-            st.write(
-                f"""
-                <script>
-                    navigator.clipboard.writeText(`{share_content}`);
-                </script>
-                """,
-                unsafe_allow_html=True
-            )
-            st.success("Analysis copied to clipboard!")
+            st.clipboard_text(share_content)
+            st.success("Analysis copied to clipboard! You can now paste it anywhere.")

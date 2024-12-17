@@ -3,6 +3,7 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from components.chart import create_stock_chart
 from components.metrics import display_metrics, create_financials_table
+from components.watchlist import display_watchlist
 from utils import get_stock_data, download_csv
 
 # Page configuration
@@ -80,6 +81,10 @@ try:
             download_csv(stock_data, f"{symbol}_price_data")
         with col2:
             download_csv(financials_df, f"{symbol}_financials")
+            
+        # Display watchlist with AI recommendations
+        st.markdown("---")
+        display_watchlist()
 
     else:
         st.error("Unable to fetch data for the specified symbol.")

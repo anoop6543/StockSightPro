@@ -1,11 +1,11 @@
 import streamlit as st
 import yfinance as yf
 from datetime import datetime, timedelta
-from components.chart import create_stock_chart
+from components.chart import create_stock_chart, create_dividend_chart
 from components.metrics import display_metrics, create_financials_table
 from components.watchlist import display_watchlist, get_ai_recommendation
 from components.social import display_share_buttons
-from utils import get_stock_data, download_csv
+from utils import get_stock_data, get_dividend_data, download_csv
 
 # Page configuration
 st.set_page_config(

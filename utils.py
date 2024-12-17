@@ -44,6 +44,28 @@ def get_dividend_data(symbol: str) -> pd.DataFrame:
     except Exception as e:
         st.error(f"Error fetching dividend data: {str(e)}")
         return None
+@st.cache_data(ttl=3600)
+def get_dividend_data(symbol: str) -> pd.DataFrame:
+    """
+    Fetch dividend history from Yahoo Finance with caching.
+    
+    Args:
+        symbol: Stock symbol
+    
+    Returns:
+        DataFrame with dividend history
+    """
+    try:
+        stock = yf.Ticker(symbol)
+        dividends = stock.dividends
+        if not dividends.empty:
+            df = pd.DataFrame(dividends)
+            df.index = pd.to_datetime(df.index)
+            return df
+        return None
+    except Exception as e:
+        st.error(f"Error fetching dividend data: {str(e)}")
+        return None
 
 def download_csv(df: pd.DataFrame, filename: str):
     """

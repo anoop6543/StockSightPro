@@ -49,10 +49,27 @@ def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: str = N
         st.link_button("Share on Twitter", twitter_url)
     
     with col2:
-        linkedin_url = f"https://www.linkedin.com/sharing/share-offsite/?url=https://stock-analysis.com&summary={encoded_content}"
+        # Structure LinkedIn URL with required parameters
+        linkedin_title = urllib.parse.quote(f"Stock Analysis: {stock_info.get('symbol', '')}")
+        linkedin_url = (
+            "https://www.linkedin.com/shareArticle?"
+            f"mini=true&"
+            f"url={urllib.parse.quote('https://stock-analysis.com')}&"
+            f"title={linkedin_title}&"
+            f"summary={encoded_content}"
+        )
         st.link_button("Share on LinkedIn", linkedin_url)
     
     with col3:
-        # Copy to clipboard button
-        st.button("📋 Copy Analysis", help="Copy analysis to clipboard",
-                 on_click=lambda: st.write(share_content))
+        # Create a container for the copy button and success message
+        copy_container = st.container()
+        with copy_container:
+            if st.button("📋 Copy Analysis", help="Copy analysis to clipboard"):
+                # Use JavaScript to copy to clipboard
+                js_code = f"""
+                    <script>
+                    navigator.clipboard.writeText(`{share_content.replace('`', '\\`')}`);
+                    </script>
+                """
+                st.markdown(js_code, unsafe_allow_html=True)
+                st.success("Analysis copied to clipboard!")

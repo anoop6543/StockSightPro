@@ -7,7 +7,7 @@ from components.watchlist import display_watchlist, get_ai_recommendation
 from components.social import display_share_buttons
 from components.health_score import calculate_health_score, display_health_score
 from utils import get_stock_data, get_dividend_data, download_csv
-from components.games.price_prediction import run_price_prediction_game # Import the game function
+
 
 # Page configuration
 st.set_page_config(
@@ -104,12 +104,6 @@ try:
         # Display watchlist with AI recommendations
         st.markdown("---")
         display_watchlist()
-
-        # Financial Learning Games Section
-        st.markdown("---")
-        st.header("🎮 Financial Learning Games")
-        run_price_prediction_game(symbol)
-
     else:
         st.error("Unable to fetch data for the specified symbol.")
 

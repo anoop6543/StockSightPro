@@ -99,20 +99,54 @@ def check_achievements(user_id: int):
                 
                 # Define achievements criteria
                 achievements = []
-                if total_points >= 1000:
-                    achievements.append("🏆 Market Maven")
-                elif total_points >= 500:
-                    achievements.append("📈 Trading Pro")
-                elif total_points >= 100:
-                    achievements.append("🎯 Market Novice")
                 
-                if total_correct >= 50 and total_correct/total_predictions >= 0.7:
-                    achievements.append("🎓 Prediction Master")
+                # Points-based achievements
+                point_achievements = [
+                    (5000, "🌟 Market Legend", "Earned 5,000+ points"),
+                    (2500, "🏆 Market Maven", "Earned 2,500+ points"),
+                    (1000, "📈 Trading Pro", "Earned 1,000+ points"),
+                    (500, "🎯 Market Expert", "Earned 500+ points"),
+                    (100, "🌱 Market Novice", "First 100 points")
+                ]
                 
-                if max_streak >= 10:
-                    achievements.append("🔥 Hot Streak Master")
-                elif max_streak >= 5:
-                    achievements.append("⚡ Momentum Builder")
+                for points, badge, description in point_achievements:
+                    if total_points >= points:
+                        achievements.append((badge, description))
+                        break
+                
+                # Accuracy-based achievements
+                if total_predictions >= 20:  # Minimum predictions required
+                    accuracy = total_correct / total_predictions
+                    accuracy_achievements = [
+                        (0.9, "🎓 Prediction Master", "90%+ prediction accuracy"),
+                        (0.8, "🔮 Market Oracle", "80%+ prediction accuracy"),
+                        (0.7, "📊 Analysis Expert", "70%+ prediction accuracy")
+                    ]
+                    
+                    for acc, badge, description in accuracy_achievements:
+                        if accuracy >= acc:
+                            achievements.append((badge, description))
+                            break
+                
+                # Streak-based achievements
+                streak_achievements = [
+                    (20, "🔥 Legendary Streak", "20+ correct predictions in a row"),
+                    (10, "⚡ Hot Streak Master", "10+ correct predictions in a row"),
+                    (5, "🎯 Momentum Builder", "5+ correct predictions in a row")
+                ]
+                
+                for streak, badge, description in streak_achievements:
+                    if max_streak >= streak:
+                        achievements.append((badge, description))
+                        break
+                
+                # Activity-based achievements
+                if total_predictions >= 100:
+                    achievements.append(("🌟 Market Veteran", "Made 100+ predictions"))
+                elif total_predictions >= 50:
+                    achievements.append(("📊 Market Analyst", "Made 50+ predictions"))
+                elif total_predictions >= 10:
+                    achievements.append(("🎮 Market Player", "Made 10+ predictions"))
                 
                 # Award new achievements
                 for achievement in achievements:
@@ -149,15 +183,59 @@ def display_progress_dashboard():
         st.metric("Highest Streak", progress[4])
     
     # Display achievements
-    st.subheader("🏆 Achievements Unlocked")
+    st.subheader("🏆 Achievements Gallery")
     if achievements:
-        achievement_cols = st.columns(2)
+        # Create a grid layout for achievements
+        achievement_cols = st.columns(3)
         for i, (achievement, achieved_at) in enumerate(achievements):
-            with achievement_cols[i % 2]:
-                st.markdown(f"### {achievement}")
-                st.caption(f"Achieved on {achieved_at.strftime('%Y-%m-%d')}")
+            with achievement_cols[i % 3]:
+                # Create an achievement card with CSS styling
+                st.markdown("""
+                    <div style="
+                        padding: 1rem;
+                        border-radius: 10px;
+                        background: linear-gradient(145deg, #f0f2f6, #ffffff);
+                        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                        margin-bottom: 1rem;
+                        text-align: center;
+                    ">
+                        <h3 style="margin: 0; color: #1f77b4;">{}</h3>
+                        <p style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                            Achieved on {}</p>
+                    </div>
+                """.format(
+                    achievement,
+                    achieved_at.strftime('%B %d, %Y')
+                ), unsafe_allow_html=True)
+                
+        # Add a progress section
+        st.markdown("---")
+        st.subheader("🎯 Next Achievements")
+        next_achievement_cols = st.columns(2)
+        with next_achievement_cols[0]:
+            points_to_next = 100
+            for points, badge, desc in point_achievements:
+                if total_points < points:
+                    points_to_next = points - total_points
+                    st.info(f"📈 {points_to_next} points to unlock: {badge}\n\n{desc}")
+                    break
+        
+        with next_achievement_cols[1]:
+            if total_predictions > 0:
+                current_accuracy = (total_correct / total_predictions) * 100
+                st.info(f"Current Accuracy: {current_accuracy:.1f}%\n\nKeep improving to unlock more badges!")
+            else:
+                st.info("Make your first prediction to start earning accuracy badges!")
     else:
-        st.info("Keep playing to earn achievements!")
+        st.info("""
+        🎮 Start playing to earn achievements!
+        
+        Available badges include:
+        • 🌱 Market Novice - Get started with your first 100 points
+        • 📈 Trading Pro - Show your expertise
+        • 🏆 Market Maven - Become a market master
+        • 🔥 Hot Streak Master - Build impressive prediction streaks
+        """)
     
     # Display accuracy metrics if available
     if progress[3] > 0:  # If there are predictions made

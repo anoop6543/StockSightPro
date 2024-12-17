@@ -5,6 +5,7 @@ from components.chart import create_stock_chart, create_dividend_chart
 from components.metrics import display_metrics, create_financials_table
 from components.watchlist import display_watchlist, get_ai_recommendation
 from components.social import display_share_buttons
+from components.health_score import calculate_health_score, display_health_score
 from utils import get_stock_data, get_dividend_data, download_csv
 
 # Page configuration
@@ -87,6 +88,12 @@ try:
                 download_csv(financials_df, f"{symbol}_financials")
         else:
             st.info("Financial statements are not available for this stock.")
+            
+        # Financial Health Score
+        st.markdown("---")
+        st.subheader("AI-Powered Financial Health Assessment")
+        health_score_data = calculate_health_score(symbol)
+        display_health_score(health_score_data)
         
         # Social sharing section
         st.markdown("---")

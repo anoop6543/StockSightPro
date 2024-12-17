@@ -1,8 +1,7 @@
 import streamlit as st
-from typing import Dict, Any
-import urllib.parse
+from typing import Dict, Any, Optional
 
-def create_share_content(stock_info: Dict[str, Any], ai_recommendation: str = None) -> str:
+def create_share_content(stock_info: Dict[str, Any], ai_recommendation: Optional[str] = None) -> str:
     """
     Create formatted content for social sharing.
     
@@ -29,7 +28,7 @@ Key Metrics:
     
     return content
 
-def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: str = None):
+def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: Optional[str] = None):
     """
     Display social sharing buttons for stock insights.
     
@@ -61,15 +60,19 @@ def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: str = N
         st.link_button("Share on LinkedIn", linkedin_url)
     
     with col3:
-        # Create a container for the copy button and success message
-        copy_container = st.container()
-        with copy_container:
-            if st.button("📋 Copy Analysis", help="Copy analysis to clipboard"):
-                # Use JavaScript to copy to clipboard
-                js_code = f"""
-                    <script>
-                    navigator.clipboard.writeText('{share_content.replace("'", "\\'")}');
-                    </script>
-                """
-                st.markdown(js_code, unsafe_allow_html=True)
-                st.success("Analysis copied to clipboard!")
+        if st.button("📋 Copy Analysis", help="Copy analysis to clipboard"):
+            # Use streamlit's built-in JavaScript function for clipboard
+            js = f"""
+                <script>
+                    const content = {repr(share_content)};
+                    navigator.clipboard.writeText(content)
+                        .then(() => {{
+                            window.alert('Analysis copied to clipboard!');
+                        }})
+                        .catch(err => {{
+                            console.error('Failed to copy:', err);
+                        }});
+                </script>
+            """
+            st.components.v1.html(js, height=0)
+            st.success("Analysis copied to clipboard!")

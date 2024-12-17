@@ -93,17 +93,17 @@ def create_financials_table(symbol: str) -> pd.DataFrame:
             metrics_index.append(display_name)
     
     # Create DataFrame only if we have data
-    if metrics_data:
-        key_metrics = pd.concat(metrics_data, axis=0)
-        key_metrics.index = metrics_index
+    if metrics_data and metrics_index:
+        df = pd.DataFrame(metrics_data, index=metrics_index)
+        
+        # Format the DataFrame
+        try:
+            st.dataframe(df.style.format("${:,.0f}"), use_container_width=True)
+        except Exception as e:
+            st.warning(f"Some financial data might not be in the expected format: {str(e)}")
+            st.dataframe(df, use_container_width=True)
+        
+        return df
     else:
-        # Create empty DataFrame with same structure
-        key_metrics = pd.DataFrame(columns=income_stmt.columns)
-    
-    # Create and format DataFrame
-    df = pd.DataFrame(key_metrics)
-    df.index = ['Revenue', 'Net Income', 'Total Assets', 'Total Liabilities',
-                'Operating Cash Flow', 'Free Cash Flow']
-    
-    st.dataframe(df.style.format("${:,.0f}"), use_container_width=True)
-    return df
+        st.info("No financial statements data available for this stock.")
+        return pd.DataFrame()

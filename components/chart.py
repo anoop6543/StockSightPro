@@ -66,3 +66,43 @@ def create_stock_chart(data: pd.DataFrame, company_name: str) -> go.Figure:
     )
 
     return fig
+
+def create_dividend_chart(dividend_data: pd.DataFrame, company_name: str) -> go.Figure:
+    """
+    Create an interactive dividend history chart using Plotly.
+    
+    Args:
+        dividend_data: DataFrame containing dividend history
+        company_name: Name of the company
+    
+    Returns:
+        Plotly figure object
+    """
+    if dividend_data is None or dividend_data.empty:
+        return None
+        
+    fig = go.Figure()
+    
+    # Add dividend amount trace
+    fig.add_trace(
+        go.Scatter(
+            x=dividend_data.index,
+            y=dividend_data,
+            mode='lines+markers',
+            name='Dividend Amount',
+            line=dict(color='green'),
+            hovertemplate='Date: %{x}<br>Dividend: $%{y:.4f}<extra></extra>'
+        )
+    )
+    
+    # Update layout
+    fig.update_layout(
+        title=f"{company_name} Dividend History",
+        yaxis_title="Dividend Amount ($)",
+        xaxis_title="Date",
+        height=400,
+        showlegend=True,
+        template="plotly_white"
+    )
+    
+    return fig

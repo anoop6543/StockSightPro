@@ -52,9 +52,19 @@ try:
         with col3:
             st.metric("Market Cap", f"${info.get('marketCap', 0):,.0f}")
 
-        # Create and display chart
+        # Create and display stock price chart
         fig = create_stock_chart(stock_data, company_name)
         st.plotly_chart(fig, use_container_width=True)
+        
+        # Get and display dividend history
+        dividend_data = get_dividend_data(symbol)
+        if dividend_data is not None:
+            dividend_fig = create_dividend_chart(dividend_data, company_name)
+            if dividend_fig:
+                st.subheader("Dividend History")
+                st.plotly_chart(dividend_fig, use_container_width=True)
+        else:
+            st.info("No dividend history available for this stock.")
 
         # Financial metrics
         st.subheader("Financial Metrics")

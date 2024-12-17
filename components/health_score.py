@@ -43,23 +43,39 @@ def calculate_health_score(symbol: str) -> dict:
             messages=[
                 {
                     "role": "system",
-                    "content": """You are a financial analyst expert. Analyze the given metrics and provide:
-                    1. A health score from 0-100
-                    2. A brief analysis (max 100 words)
-                    3. Key strengths (max 3)
-                    4. Key risks (max 3)
+                    "content": """You are a financial analyst expert. Analyze the given metrics and provide your response in the following strict JSON format:
+                    {
+                        "score": <number between 0-100>,
+                        "analysis": "<brief analysis in max 100 words>",
+                        "strengths": ["<strength1>", "<strength2>", "<strength3>"],
+                        "risks": ["<risk1>", "<risk2>", "<risk3>"]
+                    }
                     
-                    Respond in JSON format with these keys: score, analysis, strengths, risks"""
+                    IMPORTANT: Ensure the response is valid JSON with these exact keys."""
                 },
                 {
                     "role": "user",
                     "content": f"Analyze this company's financial health: {json.dumps(context)}"
                 }
-            ],
-            response_format={"type": "json_object"}
+            ]
         )
         
-        return json.loads(response.choices[0].message.content)
+        try:
+            content = response.choices[0].message.content.strip()
+            # Remove any markdown formatting if present
+            if content.startswith("```json"):
+                content = content[7:-3].strip()
+            elif content.startswith("```"):
+                content = content[3:-3].strip()
+            return json.loads(content)
+        except json.JSONDecodeError as e:
+            st.error(f"Error parsing AI response: {str(e)}")
+            return {
+                "score": 50,
+                "analysis": "Error processing financial health score.",
+                "strengths": ["Data unavailable"],
+                "risks": ["Data unavailable"]
+            }
     except Exception as e:
         st.error(f"Error calculating health score: {str(e)}")
         return None

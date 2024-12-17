@@ -89,18 +89,17 @@ def display_chatbot():
 
 def suggest_topics():
     """Suggest learning topics based on user's progress"""
-    suggested_topics = [
-        "📈 Technical Analysis Basics",
-        "💼 Portfolio Diversification",
-        "📊 Understanding Financial Ratios",
-        "🏢 Fundamental Analysis",
-        "📉 Risk Management",
-        "💰 Value Investing Principles"
-    ]
+    suggested_topics = {
+        "📈 Technical Analysis Basics": "Technical Analysis Basics",
+        "💼 Portfolio Diversification": "Portfolio Diversification",
+        "📊 Understanding Financial Ratios": "Understanding Financial Ratios",
+        "🏢 Fundamental Analysis": "Fundamental Analysis",
+        "📉 Risk Management": "Risk Management",
+        "💰 Value Investing Principles": "Value Investing Principles"
+    }
     
     st.sidebar.markdown("### 📚 Suggested Topics")
-    for topic in suggested_topics:
-        if st.sidebar.button(topic):
-            query = f"Can you explain {topic.split('️ ')[1]} in simple terms?"
-            return query
+    for display_text, topic_name in suggested_topics.items():
+        if st.sidebar.button(display_text):
+            return f"Can you explain {topic_name} in simple terms?"
     return None

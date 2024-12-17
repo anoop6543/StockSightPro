@@ -81,7 +81,7 @@ def display_login_form():
         st.write(f"Welcome back, {st.session_state.user['username']}!")
         if st.button("Logout"):
             st.session_state.user = None
-            st.experimental_rerun()
+            st.rerun()
         return
 
     tab1, tab2 = st.tabs(["Login", "Register"])
@@ -96,7 +96,7 @@ def display_login_form():
                 if user:
                     st.session_state.user = user
                     st.success("Successfully logged in!")
-                    st.experimental_rerun()
+                    st.rerun()
                 else:
                     st.error("Invalid username or password")
     

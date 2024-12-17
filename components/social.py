@@ -68,7 +68,7 @@ def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: str = N
                 # Use JavaScript to copy to clipboard
                 js_code = f"""
                     <script>
-                    navigator.clipboard.writeText(`{share_content.replace('`', '\\`')}`);
+                    navigator.clipboard.writeText('{share_content.replace("'", "\\'")}');
                     </script>
                 """
                 st.markdown(js_code, unsafe_allow_html=True)

@@ -8,6 +8,7 @@ dependencies = [
     "openai>=1.57.4",
     "pandas>=2.2.3",
     "plotly>=5.24.1",
+    "psycopg2-binary>=2.9.10",
     "streamlit>=1.41.1",
     "trafilatura>=2.0.0",
     "twilio>=9.4.1",

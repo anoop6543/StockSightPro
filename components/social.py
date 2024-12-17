@@ -1,4 +1,5 @@
 import streamlit as st
+import urllib.parse
 from typing import Dict, Any, Optional
 
 def create_share_content(stock_info: Dict[str, Any], ai_recommendation: Optional[str] = None) -> str:
@@ -50,29 +51,24 @@ def display_share_buttons(stock_info: Dict[str, Any], ai_recommendation: Optiona
     with col2:
         # Structure LinkedIn URL with required parameters
         linkedin_title = urllib.parse.quote(f"Stock Analysis: {stock_info.get('symbol', '')}")
+        linkedin_summary = urllib.parse.quote(share_content[:256])  # LinkedIn has character limits
         linkedin_url = (
             "https://www.linkedin.com/shareArticle?"
-            f"mini=true&"
+            "mini=true&"
             f"url={urllib.parse.quote('https://stock-analysis.com')}&"
             f"title={linkedin_title}&"
-            f"summary={encoded_content}"
+            f"summary={linkedin_summary}"
         )
         st.link_button("Share on LinkedIn", linkedin_url)
     
     with col3:
-        if st.button("📋 Copy Analysis", help="Copy analysis to clipboard"):
-            # Use streamlit's built-in JavaScript function for clipboard
-            js = f"""
+        if st.button("📋 Copy Analysis"):
+            st.write(
+                f"""
                 <script>
-                    const content = {repr(share_content)};
-                    navigator.clipboard.writeText(content)
-                        .then(() => {{
-                            window.alert('Analysis copied to clipboard!');
-                        }})
-                        .catch(err => {{
-                            console.error('Failed to copy:', err);
-                        }});
+                    navigator.clipboard.writeText(`{share_content}`);
                 </script>
-            """
-            st.components.v1.html(js, height=0)
+                """,
+                unsafe_allow_html=True
+            )
             st.success("Analysis copied to clipboard!")

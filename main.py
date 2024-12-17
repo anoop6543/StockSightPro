@@ -3,7 +3,8 @@ import yfinance as yf
 from datetime import datetime, timedelta
 from components.chart import create_stock_chart
 from components.metrics import display_metrics, create_financials_table
-from components.watchlist import display_watchlist
+from components.watchlist import display_watchlist, get_ai_recommendation
+from components.social import display_share_buttons
 from utils import get_stock_data, download_csv
 
 # Page configuration
@@ -81,7 +82,12 @@ try:
             download_csv(stock_data, f"{symbol}_price_data")
         with col2:
             download_csv(financials_df, f"{symbol}_financials")
-            
+        
+        # Social sharing section
+        st.markdown("---")
+        ai_rec = get_ai_recommendation(symbol)
+        display_share_buttons(info, ai_rec)
+        
         # Display watchlist with AI recommendations
         st.markdown("---")
         display_watchlist()

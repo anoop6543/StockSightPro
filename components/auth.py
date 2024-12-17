@@ -60,17 +60,35 @@ def login_user(username: str, password: str) -> Optional[Dict[str, Any]]:
 
 def init_session_state():
     """Initialize session state for authentication"""
-    if 'user' not in st.session_state:
-        st.session_state.user = None
+    if not hasattr(st.session_state, 'user'):
+        st.session_state['user'] = None
+    if not hasattr(st.session_state, 'game_score'):
+        st.session_state['game_score'] = 0
+    if not hasattr(st.session_state, 'streak'):
+        st.session_state['streak'] = 0
+    if not hasattr(st.session_state, 'last_prediction'):
+        st.session_state['last_prediction'] = None
 
 def login_required(func):
     """Decorator to require login for certain pages/functions"""
     def wrapper(*args, **kwargs):
-        if st.session_state.user is None:
-            st.warning("Please log in to access this feature")
+        try:
+            # Initialize session state
+            init_session_state()
+            
+            # Check if user is logged in
+            if not st.session_state['user']:
+                st.warning("Please log in to access this feature")
+                display_login_form()
+                return
+            
+            # Only execute the wrapped function if user is logged in
+            return func(*args, **kwargs)
+        except Exception as e:
+            st.error(f"An error occurred: {str(e)}")
+            init_session_state()  # Re-initialize on error
             display_login_form()
             return
-        return func(*args, **kwargs)
     return wrapper
 
 def display_login_form():

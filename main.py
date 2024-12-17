@@ -76,12 +76,17 @@ try:
         st.subheader("Financial Statements")
         financials_df = create_financials_table(symbol)
         
-        # Download buttons
-        col1, col2 = st.columns(2)
-        with col1:
-            download_csv(stock_data, f"{symbol}_price_data")
-        with col2:
-            download_csv(financials_df, f"{symbol}_financials")
+        if not financials_df.empty:
+            st.dataframe(financials_df.style.format("${:,.0f}"), use_container_width=True)
+            
+            # Download buttons
+            col1, col2 = st.columns(2)
+            with col1:
+                download_csv(stock_data, f"{symbol}_price_data")
+            with col2:
+                download_csv(financials_df, f"{symbol}_financials")
+        else:
+            st.info("Financial statements are not available for this stock.")
         
         # Social sharing section
         st.markdown("---")

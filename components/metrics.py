@@ -63,15 +63,42 @@ def create_financials_table(symbol: str) -> pd.DataFrame:
     balance_sheet = stock.balance_sheet
     cash_flow = stock.cashflow
     
-    # Combine key metrics
-    key_metrics = pd.concat([
-        income_stmt.loc['Total Revenue'],
-        income_stmt.loc['Net Income'],
-        balance_sheet.loc['Total Assets'],
-        balance_sheet.loc['Total Liabilities'],
-        cash_flow.loc['Operating Cash Flow'],
-        cash_flow.loc['Free Cash Flow']
-    ])
+    # Initialize empty lists for metrics
+    metrics_data = []
+    metrics_index = []
+    
+    # Helper function to safely get financial data
+    def safe_get_metric(statement, metric_name):
+        try:
+            if metric_name in statement.index:
+                return statement.loc[metric_name]
+            return pd.Series([None] * len(statement.columns), index=statement.columns)
+        except:
+            return pd.Series([None] * len(statement.columns), index=statement.columns)
+    
+    # Safely get each metric
+    metrics = [
+        ('Revenue', income_stmt, 'Total Revenue'),
+        ('Net Income', income_stmt, 'Net Income'),
+        ('Total Assets', balance_sheet, 'Total Assets'),
+        ('Total Liabilities', balance_sheet, 'Total Liabilities Net Minority Interest'),
+        ('Operating Cash Flow', cash_flow, 'Operating Cash Flow'),
+        ('Free Cash Flow', cash_flow, 'Free Cash Flow')
+    ]
+    
+    for display_name, statement, metric_name in metrics:
+        metric_data = safe_get_metric(statement, metric_name)
+        if not metric_data.empty and not all(pd.isna(metric_data)):
+            metrics_data.append(metric_data)
+            metrics_index.append(display_name)
+    
+    # Create DataFrame only if we have data
+    if metrics_data:
+        key_metrics = pd.concat(metrics_data, axis=0)
+        key_metrics.index = metrics_index
+    else:
+        # Create empty DataFrame with same structure
+        key_metrics = pd.DataFrame(columns=income_stmt.columns)
     
     # Create and format DataFrame
     df = pd.DataFrame(key_metrics)

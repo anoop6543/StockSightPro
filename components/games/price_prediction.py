@@ -67,6 +67,8 @@ def run_price_prediction_game(symbol: str):
 
 def make_prediction(prediction_up: bool, hist: pd.DataFrame):
     """Process the user's prediction and update score"""
+    from .progress_tracker import update_progress
+    
     if len(hist) < 2:
         return
     
@@ -80,11 +82,15 @@ def make_prediction(prediction_up: bool, hist: pd.DataFrame):
         points = 10 + (5 * (st.session_state.streak - 1))  # Base points + streak bonus
         st.session_state.game_score += points
         st.success(f"🎯 Correct! You earned {points} points! Streak: {st.session_state.streak}")
+        # Update progress tracking
+        update_progress("Price Prediction", points, correct=True)
     else:
         # Wrong prediction
         st.session_state.streak = 0
         st.session_state.game_score = max(0, st.session_state.game_score - 5)
         st.error("❌ Wrong prediction. Lost 5 points. Streak reset.")
+        # Update progress tracking
+        update_progress("Price Prediction", -5, correct=False)
     
     st.session_state.last_prediction = prediction_up
 

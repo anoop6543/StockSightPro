@@ -149,26 +149,26 @@ def check_achievements(user_id: int):
                     achievements.append(("🎮 Market Player", "Made 10+ predictions"))
                 
                 # Award new achievements
-                for achievement in achievements:
+                for badge, description in achievements:
                     # Check if achievement already exists
-                cur.execute("""
-                    INSERT INTO achievements (user_id, achievement_name)
-                    VALUES (%s, %s)
-                    ON CONFLICT (user_id, achievement_name) DO NOTHING
-                    RETURNING id
-                """, (user_id, achievement[0]))
-                
-                # If new achievement was inserted (not existing), trigger celebration
-                if cur.fetchone() is not None:
-                    from ..celebrations import trigger_celebration
-                    trigger_celebration(achievement[0], achievement[1])
+                    cur.execute("""
+                        INSERT INTO achievements (user_id, achievement_name)
+                        VALUES (%s, %s)
+                        ON CONFLICT (user_id, achievement_name) DO NOTHING
+                        RETURNING id
+                    """, (user_id, badge))
+                    
+                    # If new achievement was inserted (not existing), trigger celebration
+                    if cur.fetchone() is not None:
+                        from ..celebrations import trigger_celebration
+                        trigger_celebration(badge, description)
                 
                 conn.commit()
                 
                 # Check for point milestones
-                if points >= 100 and points % 100 == 0:
+                if total_points >= 100 and total_points % 100 == 0:
                     from ..celebrations import display_milestone_animation
-                    display_milestone_animation(points, points)
+                    display_milestone_animation(total_points, total_points)
     except psycopg2.Error as e:
         st.error(f"Error checking achievements: {str(e)}")
 
@@ -219,7 +219,7 @@ def display_progress_dashboard():
                     achievement,
                     achieved_at.strftime('%B %d, %Y')
                 ), unsafe_allow_html=True)
-                
+        
         # Add a progress section
         st.markdown("---")
         st.subheader("🎯 Next Achievements")
@@ -227,14 +227,14 @@ def display_progress_dashboard():
         with next_achievement_cols[0]:
             points_to_next = 100
             for points, badge, desc in point_achievements:
-                if total_points < points:
-                    points_to_next = points - total_points
+                if progress[1] < points:
+                    points_to_next = points - progress[1]
                     st.info(f"📈 {points_to_next} points to unlock: {badge}\n\n{desc}")
                     break
         
         with next_achievement_cols[1]:
-            if total_predictions > 0:
-                current_accuracy = (total_correct / total_predictions) * 100
+            if progress[3] > 0:
+                current_accuracy = (progress[2] / progress[3]) * 100
                 st.info(f"Current Accuracy: {current_accuracy:.1f}%\n\nKeep improving to unlock more badges!")
             else:
                 st.info("Make your first prediction to start earning accuracy badges!")

@@ -71,13 +71,28 @@ def display_watchlist():
     
     st.subheader("📋 Your Watchlist")
     
-    # Add stock to watchlist
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        new_symbol = st.text_input("Add Stock to Watchlist", key="new_watchlist_symbol").upper()
-    with col2:
-        if st.button("Add to Watchlist") and new_symbol:
+    # Add stock to watchlist with responsive layout
+    if st.session_state.get('mobile_view', False):
+        # Mobile: Stack vertically
+        new_symbol = st.text_input(
+            "Add Stock to Watchlist",
+            key="new_watchlist_symbol",
+            help="Enter a stock symbol to add to your watchlist"
+        ).upper()
+        if st.button("➕ Add to Watchlist", use_container_width=True) and new_symbol:
             add_to_watchlist(new_symbol)
+    else:
+        # Desktop: Side by side
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            new_symbol = st.text_input(
+                "Add Stock to Watchlist",
+                key="new_watchlist_symbol",
+                help="Enter a stock symbol to add to your watchlist"
+            ).upper()
+        with col2:
+            if st.button("Add to Watchlist") and new_symbol:
+                add_to_watchlist(new_symbol)
     
     # Display watchlist
     if st.session_state.watchlist:

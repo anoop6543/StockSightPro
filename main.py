@@ -34,16 +34,35 @@ st.markdown("""
     Data provided by Yahoo Finance.
 """)
 
-# Input section
-col1, col2 = st.columns([2, 1])
-with col1:
-    symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL").upper()
-with col2:
+# Input section with responsive layout
+if st.session_state.get('mobile_view', False):
+    # Mobile layout: Stack inputs vertically
+    symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL", 
+                          help="Enter a valid stock symbol").upper()
     period = st.selectbox(
         "Select Time Period",
         ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
-        index=2
+        index=2,
+        help="Choose the time period for analysis"
     )
+else:
+    # Desktop layout: Side by side
+    col1, col2 = st.columns([2, 1])
+    with col1:
+        symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL",
+                              help="Enter a valid stock symbol").upper()
+    with col2:
+        period = st.selectbox(
+            "Select Time Period",
+            ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
+            index=2,
+            help="Choose the time period for analysis"
+        )
+
+# Add responsive layout toggle in sidebar
+with st.sidebar:
+    st.session_state.mobile_view = st.checkbox("Mobile View", 
+                                             value=st.session_state.get('mobile_view', False))
 
 try:
     # Fetch stock data
@@ -54,18 +73,47 @@ try:
         info = yf.Ticker(symbol).info
         company_name = info.get('longName', symbol)
         
-        # Header metrics
-        col1, col2, col3 = st.columns(3)
-        with col1:
+        # Header metrics with responsive layout
+        if st.session_state.get('mobile_view', False):
+            # Mobile: Stack metrics vertically with larger touch targets
             st.metric(
                 "Current Price",
                 f"${stock_data['Close'].iloc[-1]:.2f}",
-                f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%"
+                f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%",
+                help="Latest stock price and daily change"
             )
-        with col2:
-            st.metric("Volume", f"{stock_data['Volume'].iloc[-1]:,.0f}")
-        with col3:
-            st.metric("Market Cap", f"${info.get('marketCap', 0):,.0f}")
+            st.metric(
+                "Volume",
+                f"{stock_data['Volume'].iloc[-1]:,.0f}",
+                help="Trading volume"
+            )
+            st.metric(
+                "Market Cap",
+                f"${info.get('marketCap', 0):,.0f}",
+                help="Total market capitalization"
+            )
+        else:
+            # Desktop: Show metrics in columns
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric(
+                    "Current Price",
+                    f"${stock_data['Close'].iloc[-1]:.2f}",
+                    f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%",
+                    help="Latest stock price and daily change"
+                )
+            with col2:
+                st.metric(
+                    "Volume",
+                    f"{stock_data['Volume'].iloc[-1]:,.0f}",
+                    help="Trading volume"
+                )
+            with col3:
+                st.metric(
+                    "Market Cap", 
+                    f"${info.get('marketCap', 0):,.0f}",
+                    help="Total market capitalization"
+                )
 
         # Create and display stock price chart
         fig = create_stock_chart(stock_data, company_name)

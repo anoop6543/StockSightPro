@@ -7,18 +7,25 @@ from components.watchlist import display_watchlist, get_ai_recommendation
 from components.social import display_share_buttons
 from components.health_score import calculate_health_score, display_health_score
 from components.tutorial import check_and_display_tutorial
+from components.auth import init_session_state, display_login_form
 from utils import get_stock_data, get_dividend_data, download_csv
 
 
-# Page configuration
+# Set page config
 st.set_page_config(
     page_title="Stock Data Dashboard",
     page_icon="📈",
     layout="wide"
 )
 
-# Check and display tutorial if needed
-check_and_display_tutorial()
+# Initialize session state
+init_session_state()
+
+# Display login form or tutorial based on authentication
+if not st.session_state.user:
+    display_login_form()
+else:
+    check_and_display_tutorial()
 
 # Title and description
 st.title("📈 Stock Data Dashboard")

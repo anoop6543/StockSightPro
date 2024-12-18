@@ -6,14 +6,37 @@ def initialize_theme_state():
     if 'theme' not in st.session_state:
         st.session_state.theme = 'light'
     
-    # Apply theme-specific styles
+    # Apply theme-specific styles with enhanced color palette
     if st.session_state.theme == 'dark':
         st.markdown("""
             <style>
                 :root {
+                    /* Base colors */
                     --background-color: #0E1117;
                     --secondary-background-color: #1B1F27;
-                    --text-color: #FAFAFA;
+                    --text-color: #E6E9EF;
+                    
+                    /* UI Elements */
+                    --card-background: #262730;
+                    --input-background: #2C303A;
+                    --border-color: #3B4252;
+                    
+                    /* Interactive Elements */
+                    --primary-color: #6C8EEF;
+                    --primary-hover: #7B9BF8;
+                    --success-color: #4CAF50;
+                    --warning-color: #FFA726;
+                    --error-color: #EF5350;
+                    
+                    /* Data Visualization */
+                    --chart-background: #1B1F27;
+                    --grid-color: #3B4252;
+                    --axis-color: #A0AEC0;
+                    
+                    /* Text Hierarchy */
+                    --text-primary: #E6E9EF;
+                    --text-secondary: #A0AEC0;
+                    --text-disabled: #666B7A;
                 }
             </style>
             """, unsafe_allow_html=True)
@@ -21,9 +44,32 @@ def initialize_theme_state():
         st.markdown("""
             <style>
                 :root {
+                    /* Base colors */
                     --background-color: #FFFFFF;
                     --secondary-background-color: #F0F2F6;
                     --text-color: #262730;
+                    
+                    /* UI Elements */
+                    --card-background: #FFFFFF;
+                    --input-background: #FFFFFF;
+                    --border-color: #E2E8F0;
+                    
+                    /* Interactive Elements */
+                    --primary-color: #1F77B4;
+                    --primary-hover: #2D87C4;
+                    --success-color: #4CAF50;
+                    --warning-color: #FF9800;
+                    --error-color: #F44336;
+                    
+                    /* Data Visualization */
+                    --chart-background: #FFFFFF;
+                    --grid-color: #E2E8F0;
+                    --axis-color: #718096;
+                    
+                    /* Text Hierarchy */
+                    --text-primary: #262730;
+                    --text-secondary: #4A5568;
+                    --text-disabled: #A0AEC0;
                 }
             </style>
             """, unsafe_allow_html=True)
@@ -57,54 +103,109 @@ def inject_theme_transition_css():
         }
         
         /* Dark mode adjustments */
-        [data-theme="dark"] .stButton > button {
-            background-color: #262730;
-            color: #FAFAFA;
-            border-color: #4A4A4A;
-        }
-        
-        [data-theme="dark"] .stTextInput > div > div > input,
-        [data-theme="dark"] .stSelectbox > div > div > select {
-            background-color: #262730 !important;
-            color: #FAFAFA !important;
-            border-color: #4A4A4A !important;
-        }
-        
-        [data-theme="dark"] .stDataFrame {
-            background-color: #1B1F27;
-            color: #FAFAFA;
-        }
-        
-        [data-theme="dark"] .css-1b0udgb {
-            background-color: #262730;
-        }
-        
-        [data-theme="dark"] .streamlit-expanderHeader {
-            background-color: #262730 !important;
-            color: #FAFAFA !important;
-        }
-        
-        [data-theme="dark"] .streamlit-expanderContent {
-            background-color: #1B1F27 !important;
-            color: #FAFAFA !important;
-        }
-        
-        [data-theme="dark"] .stMarkdown a {
-            color: #6C8EEF;
+        [data-theme="dark"] {
+            /* Buttons */
+            .stButton > button {
+                background-color: var(--input-background);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                transition: all 0.2s ease;
+            }
+            .stButton > button:hover {
+                background-color: var(--primary-color);
+                color: var(--text-primary);
+                border-color: var(--primary-color);
+            }
+            
+            /* Inputs and Selects */
+            .stTextInput > div > div > input,
+            .stSelectbox > div > div > select,
+            .stTextArea > div > div > textarea {
+                background-color: var(--input-background) !important;
+                color: var(--text-primary) !important;
+                border: 1px solid var(--border-color) !important;
+            }
+            
+            /* DataFrames and Tables */
+            .stDataFrame {
+                background-color: var(--card-background);
+                color: var(--text-primary);
+            }
+            .stDataFrame td {
+                background-color: var(--secondary-background-color);
+                color: var(--text-primary);
+                border-color: var(--border-color);
+            }
+            
+            /* Expanders */
+            .streamlit-expanderHeader {
+                background-color: var(--card-background) !important;
+                color: var(--text-primary) !important;
+                border: 1px solid var(--border-color);
+            }
+            .streamlit-expanderContent {
+                background-color: var(--secondary-background-color) !important;
+                color: var(--text-primary) !important;
+                border: 1px solid var(--border-color);
+            }
+            
+            /* Links */
+            .stMarkdown a {
+                color: var(--primary-color);
+                text-decoration: none;
+            }
+            .stMarkdown a:hover {
+                color: var(--primary-hover);
+                text-decoration: underline;
+            }
+            
+            /* Tooltips */
+            .stTooltipIcon {
+                color: var(--text-secondary) !important;
+            }
+            
+            /* Progress Bars */
+            .stProgress > div > div > div {
+                background-color: var(--primary-color);
+            }
+            
+            /* Metrics */
+            .stMetric {
+                background-color: var(--card-background);
+                padding: 1rem;
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+            }
+            .stMetric label {
+                color: var(--text-secondary) !important;
+            }
+            .stMetric .metric-value {
+                color: var(--text-primary) !important;
+            }
         }
         
         /* Light mode adjustments */
-        [data-theme="light"] .stButton > button {
-            background-color: #FFFFFF;
-            color: #262730;
-            border-color: #E0E0E0;
-        }
-        
-        [data-theme="light"] .stTextInput > div > div > input,
-        [data-theme="light"] .stSelectbox > div > div > select {
-            background-color: #FFFFFF;
-            color: #262730;
-            border-color: #E0E0E0;
+        [data-theme="light"] {
+            /* Buttons */
+            .stButton > button {
+                background-color: var(--input-background);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+                transition: all 0.2s ease;
+            }
+            .stButton > button:hover {
+                background-color: var(--primary-color);
+                color: white;
+            }
+            
+            /* Inputs and Selects */
+            .stTextInput > div > div > input,
+            .stSelectbox > div > div > select,
+            .stTextArea > div > div > textarea {
+                background-color: var(--input-background);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+            }
         }
         
         /* Chart transitions */

@@ -95,7 +95,7 @@ def display_milestone_animation(points: int, milestone: int):
             border-radius: 20px;
             color: white;
             margin: 20px 0;
-            animation: scaleIn 0.5s ease-out, glow 2s infinite;
+            animation: scaleInOut 0.5s ease-out;
             box-shadow: 0 0 20px rgba(108,92,231,0.5);
         ">
             <div style="
@@ -108,7 +108,7 @@ def display_milestone_animation(points: int, milestone: int):
             <div style="
                 font-size: 2em;
                 margin-bottom: 10px;
-                animation: pulse 1s infinite;
+                animation: pulseText 1s infinite;
             ">
                 {points} Points
             </div>
@@ -117,18 +117,14 @@ def display_milestone_animation(points: int, milestone: int):
             </div>
         </div>
         <style>
-            @keyframes scaleIn {
-                from { transform: scale(0); opacity: 0; }
-                to { transform: scale(1); opacity: 1; }
-            }
-            @keyframes glow {
-                0%, 100% { box-shadow: 0 0 20px rgba(108,92,231,0.5); }
-                50% { box-shadow: 0 0 40px rgba(108,92,231,0.8); }
-            }
-            @keyframes pulse {
-                0%, 100% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-            }
+            @keyframes scaleInOut {{
+                from {{ transform: scale(0); opacity: 0; }}
+                to {{ transform: scale(1); opacity: 1; }}
+            }}
+            @keyframes pulseText {{
+                0%, 100% {{ transform: scale(1); }}
+                50% {{ transform: scale(1.1); }}
+            }}
         </style>
         """,
         unsafe_allow_html=True

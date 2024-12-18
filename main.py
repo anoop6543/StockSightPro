@@ -118,8 +118,27 @@ try:
                     help="Total market capitalization"
                 )
 
-        # Create and display stock price chart
-        fig = create_stock_chart(stock_data, company_name)
+        # Technical Indicators Selection
+        st.subheader("Technical Indicators")
+        indicator_col1, indicator_col2 = st.columns(2)
+        
+        with indicator_col1:
+            show_sma = st.checkbox("Moving Averages", value=True, help="Show 20, 50, and 200-day Simple Moving Averages")
+            show_bollinger = st.checkbox("Bollinger Bands", help="Show Bollinger Bands (20-day, 2 standard deviations)")
+        
+        with indicator_col2:
+            show_rsi = st.checkbox("RSI", help="Show Relative Strength Index")
+            show_macd = st.checkbox("MACD", help="Show Moving Average Convergence Divergence")
+
+        # Create and display stock price chart with selected indicators
+        show_indicators = {
+            'sma': show_sma,
+            'bollinger': show_bollinger,
+            'rsi': show_rsi,
+            'macd': show_macd
+        }
+        
+        fig = create_stock_chart(stock_data, company_name, show_indicators)
         st.plotly_chart(fig, use_container_width=True)
         
         # Get and display dividend history

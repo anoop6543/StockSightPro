@@ -8,6 +8,7 @@ from components.social import display_share_buttons
 from components.health_score import calculate_health_score, display_health_score
 from components.tutorial import check_and_display_tutorial
 from components.auth import init_session_state, display_login_form
+from components.theme import display_theme_toggle
 from utils import get_stock_data, get_dividend_data, download_csv
 
 
@@ -59,10 +60,12 @@ else:
             help="Choose the time period for analysis"
         )
 
-# Add responsive layout toggle in sidebar
+# Add responsive layout and theme toggles in sidebar
 with st.sidebar:
-    st.session_state.mobile_view = st.checkbox("Mobile View", 
+    st.session_state.mobile_view = st.checkbox("📱 Mobile View", 
                                              value=st.session_state.get('mobile_view', False))
+    st.markdown("---")
+    display_theme_toggle()
 
 try:
     # Fetch stock data

@@ -45,12 +45,64 @@ cd financial-learning-platform
 pip install streamlit yfinance openai psycopg2-binary pandas plotly bcrypt
 ```
 
-3. Set up environment variables:
+3. Set up PostgreSQL Database:
+
+a. Install PostgreSQL on your system if not already installed:
+   - Windows: Download and install from https://www.postgresql.org/download/windows/
+   - macOS: `brew install postgresql`
+   - Linux: `sudo apt-get install postgresql`
+
+b. Create a new PostgreSQL database:
+```bash
+# Log into PostgreSQL
+psql -U postgres
+
+# Create database
+CREATE DATABASE financial_learning;
+```
+
+c. Create required tables:
+```sql
+-- Users table
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(100) UNIQUE NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Game progress table
+CREATE TABLE game_progress (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    game_name VARCHAR(100) NOT NULL,
+    points INTEGER DEFAULT 0,
+    correct_predictions INTEGER DEFAULT 0,
+    total_predictions INTEGER DEFAULT 0,
+    highest_streak INTEGER DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Achievements table
+CREATE TABLE achievements (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER REFERENCES users(id),
+    achievement_name VARCHAR(100) NOT NULL,
+    achieved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, achievement_name)
+);
+```
+
+d. Set up environment variables:
 Create a `.env` file in the root directory and add:
 ```
 OPENAI_API_KEY=your_openai_api_key
-DATABASE_URL=postgresql://username:password@host:port/database
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/financial_learning
 ```
+
+Note: Replace `your_password` with your PostgreSQL password. The default port is usually 5432.
 
 ## Running the Application
 

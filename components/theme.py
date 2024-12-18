@@ -34,7 +34,7 @@ def toggle_theme():
         st.session_state.theme = 'dark'
     else:
         st.session_state.theme = 'light'
-    st.experimental_set_query_params(theme=st.session_state.theme)
+    st.query_params['theme'] = st.session_state.theme
 
 def inject_theme_transition_css():
     """Inject CSS for smooth theme transitions"""
@@ -105,9 +105,8 @@ def display_theme_toggle():
     initialize_theme_state()
     
     # Get theme from URL parameters if available
-    params = st.experimental_get_query_params()
-    if 'theme' in params:
-        st.session_state.theme = params['theme'][0]
+    if 'theme' in st.query_params:
+        st.session_state.theme = st.query_params['theme']
     
     # Inject CSS for theme transitions
     inject_theme_transition_css()

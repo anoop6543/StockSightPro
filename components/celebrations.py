@@ -47,26 +47,26 @@ def trigger_celebration(achievement_name: str, description: str):
             </div>
         </div>
         <style>
-            @keyframes slideIn {
-                from { transform: translateY(-100%); opacity: 0; }
-                to { transform: translateY(0); opacity: 1; }
-            }
-            @keyframes fadeOut {
-                from { opacity: 1; }
-                to { opacity: 0; }
-            }
-            @keyframes bounce {
-                0%, 100% { transform: translateY(0); }
-                50% { transform: translateY(-10px); }
-            }
-            @keyframes fadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            .celebration-wrapper {
+            @keyframes slideIn {{
+                from {{ transform: translateY(-100%); opacity: 0; }}
+                to {{ transform: translateY(0); opacity: 1; }}
+            }}
+            @keyframes fadeOut {{
+                from {{ opacity: 1; }}
+                to {{ opacity: 0; }}
+            }}
+            @keyframes bounce {{
+                0%, 100% {{ transform: translateY(0); }}
+                50% {{ transform: translateY(-10px); }}
+            }}
+            @keyframes fadeIn {{
+                from {{ opacity: 0; }}
+                to {{ opacity: 1; }}
+            }}
+            .celebration-wrapper {{
                 position: relative;
                 z-index: 1000;
-            }
+            }}
         </style>
         """,
         unsafe_allow_html=True

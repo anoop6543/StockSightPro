@@ -101,5 +101,6 @@ def suggest_topics():
     st.sidebar.markdown("### 📚 Suggested Topics")
     for display_text, topic_name in suggested_topics.items():
         if st.sidebar.button(display_text):
-            return f"Can you explain {topic_name} in simple terms?"
+            query = f"Can you explain {topic_name} in simple terms?"
+            return query
     return None

@@ -57,19 +57,51 @@ def inject_theme_transition_css():
         }
         
         /* Dark mode adjustments */
-        [data-theme="dark"] .stButton>button {
+        [data-theme="dark"] .stButton > button {
             background-color: #262730;
             color: #FAFAFA;
             border-color: #4A4A4A;
         }
         
-        [data-theme="dark"] .stTextInput>div>div>input {
-            background-color: #262730;
+        [data-theme="dark"] .stTextInput > div > div > input,
+        [data-theme="dark"] .stSelectbox > div > div > select {
+            background-color: #262730 !important;
+            color: #FAFAFA !important;
+            border-color: #4A4A4A !important;
+        }
+        
+        [data-theme="dark"] .stDataFrame {
+            background-color: #1B1F27;
             color: #FAFAFA;
         }
         
+        [data-theme="dark"] .css-1b0udgb {
+            background-color: #262730;
+        }
+        
+        [data-theme="dark"] .streamlit-expanderHeader {
+            background-color: #262730 !important;
+            color: #FAFAFA !important;
+        }
+        
+        [data-theme="dark"] .streamlit-expanderContent {
+            background-color: #1B1F27 !important;
+            color: #FAFAFA !important;
+        }
+        
+        [data-theme="dark"] .stMarkdown a {
+            color: #6C8EEF;
+        }
+        
         /* Light mode adjustments */
-        [data-theme="light"] .stButton>button {
+        [data-theme="light"] .stButton > button {
+            background-color: #FFFFFF;
+            color: #262730;
+            border-color: #E0E0E0;
+        }
+        
+        [data-theme="light"] .stTextInput > div > div > input,
+        [data-theme="light"] .stSelectbox > div > div > select {
             background-color: #FFFFFF;
             color: #262730;
             border-color: #E0E0E0;
@@ -78,6 +110,25 @@ def inject_theme_transition_css():
         /* Chart transitions */
         .js-plotly-plot {
             transition: background-color 0.3s ease-in-out;
+        }
+        
+        [data-theme="dark"] .js-plotly-plot .plot-container {
+            background-color: #1B1F27 !important;
+        }
+        
+        [data-theme="dark"] .js-plotly-plot .main-svg {
+            background-color: #1B1F27 !important;
+        }
+        
+        /* Metrics styling */
+        [data-theme="dark"] .stMetric {
+            background-color: #262730;
+            border-radius: 5px;
+            padding: 10px;
+        }
+        
+        [data-theme="dark"] .stMetric label {
+            color: #FAFAFA !important;
         }
         
         /* Custom toggle button */

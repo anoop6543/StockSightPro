@@ -11,6 +11,7 @@ from components.health_score import calculate_health_score, display_health_score
 from components.tutorial import check_and_display_tutorial
 from components.auth import init_session_state, display_login_form
 from components.theme import display_theme_toggle
+from components.deployment_assistant import display_deployment_assistant
 from utils import get_stock_data, get_dividend_data, download_csv
 
 # Configure logging
@@ -23,8 +24,12 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Set page config with proper base URL handling
+# Initialize default values
+DEFAULT_SYMBOL = "AAPL"
+DEFAULT_PERIOD = "6mo"
+
 try:
+    # Set page config with proper base URL handling
     st.set_page_config(
         page_title="Stock Data Dashboard",
         page_icon="📈",
@@ -79,7 +84,7 @@ except Exception as e:
 try:
     if st.session_state.get('mobile_view', False):
         # Mobile layout: Stack inputs vertically
-        symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL").upper()
+        symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", DEFAULT_SYMBOL).upper()
         period = st.selectbox(
             "Select Time Period",
             ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
@@ -89,7 +94,7 @@ try:
         # Desktop layout: Side by side
         col1, col2 = st.columns([2, 1])
         with col1:
-            symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL").upper()
+            symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", DEFAULT_SYMBOL).upper()
         with col2:
             period = st.selectbox(
                 "Select Time Period",
@@ -100,24 +105,19 @@ try:
     logger.info(f"User input received - Symbol: {symbol}, Period: {period}")
 except Exception as e:
     logger.error(f"Error in input section: {str(e)}")
-    st.error("Error processing inputs. Please try again.")
-    st.stop()
-
-# Add responsive layout and theme toggles in sidebar
-with st.sidebar:
-    st.session_state.mobile_view = st.checkbox("📱 Mobile View", 
-                                           value=st.session_state.get('mobile_view', False))
-    st.markdown("---")
-    display_theme_toggle()
+    symbol = DEFAULT_SYMBOL
+    period = DEFAULT_PERIOD
+    st.error("Error processing inputs. Using default values.")
 
 try:
     # Fetch stock data
     stock_data = get_stock_data(symbol, period)
 
-    if stock_data is not None:
+    if stock_data is not None and not stock_data.empty:
         logger.info(f"Successfully fetched stock data for {symbol}")
         # Get stock info
-        info = yf.Ticker(symbol).info
+        stock = yf.Ticker(symbol)
+        info = stock.info
         company_name = info.get('longName', symbol)
 
         # Display metrics based on layout
@@ -160,52 +160,59 @@ try:
         }
 
         # Create and display charts
-        fig = create_stock_chart(stock_data, company_name, show_indicators)
-        st.plotly_chart(fig, use_container_width=True)
+        try:
+            fig = create_stock_chart(stock_data, company_name, show_indicators)
+            st.plotly_chart(fig, use_container_width=True)
+        except Exception as e:
+            logger.error(f"Error creating stock chart: {str(e)}")
+            st.error("Error displaying chart. Please try again.")
 
         # Display other components only if basic data loaded successfully
-        dividend_data = get_dividend_data(symbol)
-        if dividend_data is not None:
-            dividend_fig = create_dividend_chart(dividend_data, company_name)
-            if dividend_fig:
-                st.subheader("Dividend History")
-                st.plotly_chart(dividend_fig, use_container_width=True)
+        try:
+            dividend_data = get_dividend_data(symbol)
+            if dividend_data is not None:
+                dividend_fig = create_dividend_chart(dividend_data, company_name)
+                if dividend_fig:
+                    st.subheader("Dividend History")
+                    st.plotly_chart(dividend_fig, use_container_width=True)
+        except Exception as e:
+            logger.error(f"Error displaying dividend data: {str(e)}")
 
-        # Financial metrics and statements
-        metrics_df = display_metrics(symbol)
-        st.subheader("Financial Statements")
-        financials_df = create_financials_table(symbol)
+        try:
+            # Financial metrics and statements
+            metrics_df = display_metrics(symbol)
+            st.subheader("Financial Statements")
+            financials_df = create_financials_table(symbol)
 
-        if not financials_df.empty:
-            st.dataframe(financials_df.style.format("${:,.0f}"), use_container_width=True)
-            col1, col2 = st.columns(2)
-            with col1:
-                download_csv(stock_data, f"{symbol}_price_data")
-            with col2:
-                download_csv(financials_df, f"{symbol}_financials")
+            if not financials_df.empty:
+                st.dataframe(financials_df.style.format("${:,.0f}"), use_container_width=True)
+                col1, col2 = st.columns(2)
+                with col1:
+                    download_csv(stock_data, f"{symbol}_price_data")
+                with col2:
+                    download_csv(financials_df, f"{symbol}_financials")
+        except Exception as e:
+            logger.error(f"Error displaying financial data: {str(e)}")
 
         # Additional components
-        st.markdown("---")
-        st.subheader("AI-Powered Financial Health Assessment")
-        health_score_data = calculate_health_score(symbol)
-        display_health_score(health_score_data)
-
-        st.markdown("---")
-        ai_rec = get_ai_recommendation(symbol)
-        display_share_buttons(info, ai_rec)
-
-        st.markdown("---")
-        display_watchlist()
-
-        if st.session_state.user:
+        try:
             st.markdown("---")
-            # Assuming display_deployment_assistant exists in components
-            #  Replace with actual function call if available
-            try:
-                display_deployment_assistant()
-            except NameError:
-                logger.warning("display_deployment_assistant not found.")
+            st.subheader("AI-Powered Financial Health Assessment")
+            health_score_data = calculate_health_score(symbol)
+            display_health_score(health_score_data)
 
+            st.markdown("---")
+            ai_rec = get_ai_recommendation(symbol)
+            display_share_buttons(info, ai_rec)
+
+            st.markdown("---")
+            display_watchlist()
+        except Exception as e:
+            logger.error(f"Error displaying additional components: {str(e)}")
+
+        if st.session_state.get('user'):
+            st.markdown("---")
+            display_deployment_assistant()
 
     else:
         logger.warning(f"No data available for symbol: {symbol}")
@@ -215,3 +222,10 @@ except Exception as e:
     logger.error(f"Error in main app execution: {str(e)}")
     st.error(f"An error occurred while loading the dashboard. Please try again.")
     st.stop()
+
+# Add responsive layout and theme toggles in sidebar
+with st.sidebar:
+    st.session_state.mobile_view = st.checkbox("📱 Mobile View", 
+                                           value=st.session_state.get('mobile_view', False))
+    st.markdown("---")
+    display_theme_toggle()

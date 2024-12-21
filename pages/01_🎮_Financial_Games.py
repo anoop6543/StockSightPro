@@ -2,11 +2,9 @@ import streamlit as st
 from components.games.price_prediction import run_price_prediction_game
 
 # Page configuration
-st.set_page_config(
-    page_title="Financial Learning Games",
-    page_icon="🎮",
-    layout="wide"
-)
+st.set_page_config(page_title="Financial Learning Games",
+                   page_icon="🎮",
+                   layout="wide")
 
 # Title and description
 st.title("🎮 Financial Learning Games")

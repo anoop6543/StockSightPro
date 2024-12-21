@@ -11,7 +11,6 @@ from components.auth import init_session_state, display_login_form
 from components.theme import display_theme_toggle
 from utils import get_stock_data, get_dividend_data, download_csv
 
-
 # Set page config
 st.set_page_config(
     page_title="Stock Data Dashboard",
@@ -19,10 +18,10 @@ st.set_page_config(
     layout="wide"
 )
 
-# Initialize session state
+# Initialize session state for user and theme
 init_session_state()
 
-# Display login form or tutorial based on authentication
+# Display login form if user is not authenticated
 if not st.session_state.user:
     display_login_form()
 else:
@@ -70,12 +69,12 @@ with st.sidebar:
 try:
     # Fetch stock data
     stock_data = get_stock_data(symbol, period)
-    
+
     if stock_data is not None:
         # Display current price and basic info
         info = yf.Ticker(symbol).info
         company_name = info.get('longName', symbol)
-        
+
         # Header metrics with responsive layout
         if st.session_state.get('mobile_view', False):
             # Mobile: Stack metrics vertically with larger touch targets
@@ -121,11 +120,11 @@ try:
         # Technical Indicators Selection
         st.subheader("Technical Indicators")
         indicator_col1, indicator_col2 = st.columns(2)
-        
+
         with indicator_col1:
             show_sma = st.checkbox("Moving Averages", value=True, help="Show 20, 50, and 200-day Simple Moving Averages")
             show_bollinger = st.checkbox("Bollinger Bands", help="Show Bollinger Bands (20-day, 2 standard deviations)")
-        
+
         with indicator_col2:
             show_rsi = st.checkbox("RSI", help="Show Relative Strength Index")
             show_macd = st.checkbox("MACD", help="Show Moving Average Convergence Divergence")
@@ -137,10 +136,10 @@ try:
             'rsi': show_rsi,
             'macd': show_macd
         }
-        
+
         fig = create_stock_chart(stock_data, company_name, show_indicators)
         st.plotly_chart(fig, use_container_width=True)
-        
+
         # Get and display dividend history
         dividend_data = get_dividend_data(symbol)
         if dividend_data is not None:
@@ -154,14 +153,14 @@ try:
         # Financial metrics
         st.subheader("Financial Metrics")
         metrics_df = display_metrics(symbol)
-        
+
         # Financial statements
         st.subheader("Financial Statements")
         financials_df = create_financials_table(symbol)
-        
+
         if not financials_df.empty:
             st.dataframe(financials_df.style.format("${:,.0f}"), use_container_width=True)
-            
+
             # Download buttons
             col1, col2 = st.columns(2)
             with col1:
@@ -170,18 +169,18 @@ try:
                 download_csv(financials_df, f"{symbol}_financials")
         else:
             st.info("Financial statements are not available for this stock.")
-            
+
         # Financial Health Score
         st.markdown("---")
         st.subheader("AI-Powered Financial Health Assessment")
         health_score_data = calculate_health_score(symbol)
         display_health_score(health_score_data)
-        
+
         # Social sharing section
         st.markdown("---")
         ai_rec = get_ai_recommendation(symbol)
         display_share_buttons(info, ai_rec)
-        
+
         # Display watchlist with AI recommendations
         st.markdown("---")
         display_watchlist()

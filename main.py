@@ -1,6 +1,8 @@
 import streamlit as st
 import yfinance as yf
 from datetime import datetime, timedelta
+import logging
+import sys
 from components.chart import create_stock_chart, create_dividend_chart
 from components.metrics import display_metrics, create_financials_table
 from components.watchlist import display_watchlist, get_ai_recommendation
@@ -10,23 +12,38 @@ from components.tutorial import check_and_display_tutorial
 from components.auth import init_session_state, display_login_form
 from components.theme import display_theme_toggle
 from utils import get_stock_data, get_dividend_data, download_csv
-from components.deployment_assistant import display_deployment_assistant
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Set page config with proper base URL handling
-st.set_page_config(
-    page_title="Stock Data Dashboard",
-    page_icon="📈",
-    layout="wide",
-    initial_sidebar_state="expanded",
-    menu_items={
-        'Get Help': None,
-        'Report a bug': None,
-        'About': None
-    }
-)
+try:
+    st.set_page_config(
+        page_title="Stock Data Dashboard",
+        page_icon="📈",
+        layout="wide",
+        initial_sidebar_state="expanded"
+    )
+    logger.info("Page configuration set successfully")
+except Exception as e:
+    logger.error(f"Error setting page config: {str(e)}")
+    st.error("Error initializing page. Please refresh.")
 
 # Initialize session state for user and theme
-init_session_state()
+try:
+    init_session_state()
+    logger.info("Session state initialized successfully")
+except Exception as e:
+    logger.error(f"Error initializing session state: {str(e)}")
+    st.error("Error initializing session. Please refresh.")
+    st.stop()
 
 # Title and description
 st.title("📈 Stock Data Dashboard")
@@ -36,40 +53,48 @@ st.markdown("""
 """)
 
 # Display login form if user is not authenticated
-if not st.session_state.user:
-    display_login_form()
-else:
-    check_and_display_tutorial()
+try:
+    if not st.session_state.user:
+        display_login_form()
+    else:
+        check_and_display_tutorial()
+except Exception as e:
+    logger.error(f"Error in authentication flow: {str(e)}")
+    st.error("Authentication error. Please try again.")
+    st.stop()
 
 # Input section with responsive layout
-if st.session_state.get('mobile_view', False):
-    # Mobile layout: Stack inputs vertically
-    symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL", 
-                          help="Enter a valid stock symbol").upper()
-    period = st.selectbox(
-        "Select Time Period",
-        ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
-        index=2,
-        help="Choose the time period for analysis"
-    )
-else:
-    # Desktop layout: Side by side
-    col1, col2 = st.columns([2, 1])
-    with col1:
-        symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL",
-                              help="Enter a valid stock symbol").upper()
-    with col2:
+try:
+    if st.session_state.get('mobile_view', False):
+        # Mobile layout: Stack inputs vertically
+        symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL").upper()
         period = st.selectbox(
             "Select Time Period",
             ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
-            index=2,
-            help="Choose the time period for analysis"
+            index=2
         )
+    else:
+        # Desktop layout: Side by side
+        col1, col2 = st.columns([2, 1])
+        with col1:
+            symbol = st.text_input("Enter Stock Symbol (e.g., AAPL)", "AAPL").upper()
+        with col2:
+            period = st.selectbox(
+                "Select Time Period",
+                ["1mo", "3mo", "6mo", "1y", "2y", "5y"],
+                index=2
+            )
+
+    logger.info(f"User input received - Symbol: {symbol}, Period: {period}")
+except Exception as e:
+    logger.error(f"Error in input section: {str(e)}")
+    st.error("Error processing inputs. Please try again.")
+    st.stop()
 
 # Add responsive layout and theme toggles in sidebar
 with st.sidebar:
     st.session_state.mobile_view = st.checkbox("📱 Mobile View", 
-                                             value=st.session_state.get('mobile_view', False))
+                                           value=st.session_state.get('mobile_view', False))
     st.markdown("---")
     display_theme_toggle()
 
@@ -78,28 +103,21 @@ try:
     stock_data = get_stock_data(symbol, period)
 
     if stock_data is not None:
-        # Display current price and basic info
+        logger.info(f"Successfully fetched stock data for {symbol}")
+        # Get stock info
         info = yf.Ticker(symbol).info
         company_name = info.get('longName', symbol)
 
-        # Header metrics with responsive layout
+        # Display metrics based on layout
         if st.session_state.get('mobile_view', False):
-            # Mobile: Stack metrics vertically with larger touch targets
             st.metric(
                 "Current Price",
                 f"${stock_data['Close'].iloc[-1]:.2f}",
                 f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%"
             )
-            st.metric(
-                "Volume",
-                f"{stock_data['Volume'].iloc[-1]:,.0f}"
-            )
-            st.metric(
-                "Market Cap",
-                f"${info.get('marketCap', 0):,.0f}"
-            )
+            st.metric("Volume", f"{stock_data['Volume'].iloc[-1]:,.0f}")
+            st.metric("Market Cap", f"${info.get('marketCap', 0):,.0f}")
         else:
-            # Desktop: Show metrics in columns
             col1, col2, col3 = st.columns(3)
             with col1:
                 st.metric(
@@ -108,29 +126,20 @@ try:
                     f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%"
                 )
             with col2:
-                st.metric(
-                    "Volume",
-                    f"{stock_data['Volume'].iloc[-1]:,.0f}"
-                )
+                st.metric("Volume", f"{stock_data['Volume'].iloc[-1]:,.0f}")
             with col3:
-                st.metric(
-                    "Market Cap", 
-                    f"${info.get('marketCap', 0):,.0f}"
-                )
+                st.metric("Market Cap", f"${info.get('marketCap', 0):,.0f}")
 
-        # Technical Indicators Selection
+        # Technical Indicators
         st.subheader("Technical Indicators")
         indicator_col1, indicator_col2 = st.columns(2)
-
         with indicator_col1:
             show_sma = st.checkbox("Moving Averages", value=True)
             show_bollinger = st.checkbox("Bollinger Bands")
-
         with indicator_col2:
             show_rsi = st.checkbox("RSI")
             show_macd = st.checkbox("MACD")
 
-        # Create and display stock price chart with selected indicators
         show_indicators = {
             'sma': show_sma,
             'bollinger': show_bollinger,
@@ -138,59 +147,53 @@ try:
             'macd': show_macd
         }
 
+        # Create and display charts
         fig = create_stock_chart(stock_data, company_name, show_indicators)
         st.plotly_chart(fig, use_container_width=True)
 
-        # Get and display dividend history
+        # Display other components only if basic data loaded successfully
         dividend_data = get_dividend_data(symbol)
         if dividend_data is not None:
             dividend_fig = create_dividend_chart(dividend_data, company_name)
             if dividend_fig:
                 st.subheader("Dividend History")
                 st.plotly_chart(dividend_fig, use_container_width=True)
-        else:
-            st.info("No dividend history available for this stock.")
 
-        # Financial metrics
-        st.subheader("Financial Metrics")
+        # Financial metrics and statements
         metrics_df = display_metrics(symbol)
-
-        # Financial statements
         st.subheader("Financial Statements")
         financials_df = create_financials_table(symbol)
 
         if not financials_df.empty:
             st.dataframe(financials_df.style.format("${:,.0f}"), use_container_width=True)
-
-            # Download buttons
             col1, col2 = st.columns(2)
             with col1:
                 download_csv(stock_data, f"{symbol}_price_data")
             with col2:
                 download_csv(financials_df, f"{symbol}_financials")
-        else:
-            st.info("Financial statements are not available for this stock.")
 
-        # Financial Health Score
+        # Additional components
         st.markdown("---")
         st.subheader("AI-Powered Financial Health Assessment")
         health_score_data = calculate_health_score(symbol)
         display_health_score(health_score_data)
 
-        # Social sharing section
         st.markdown("---")
         ai_rec = get_ai_recommendation(symbol)
         display_share_buttons(info, ai_rec)
 
-        # Display watchlist with AI recommendations
         st.markdown("---")
         display_watchlist()
-        if st.session_state.user:  # Only show to logged-in users
+
+        if st.session_state.user:
             st.markdown("---")
             display_deployment_assistant()
+
     else:
-        st.error("Unable to fetch data for the specified symbol.")
+        logger.warning(f"No data available for symbol: {symbol}")
+        st.warning("Unable to fetch data for the specified symbol. Please check the symbol and try again.")
 
 except Exception as e:
-    st.error(f"An error occurred: {str(e)}")
-    st.info("Please check the stock symbol and try again.")
+    logger.error(f"Error in main app execution: {str(e)}")
+    st.error(f"An error occurred while loading the dashboard. Please try again.")
+    st.stop()

@@ -29,7 +29,12 @@ try:
         page_title="Stock Data Dashboard",
         page_icon="📈",
         layout="wide",
-        initial_sidebar_state="expanded"
+        initial_sidebar_state="expanded",
+        menu_items={
+            'Get Help': None,
+            'Report a bug': None,
+            'About': None
+        }
     )
     logger.info("Page configuration set successfully")
 except Exception as e:
@@ -38,12 +43,19 @@ except Exception as e:
 
 # Initialize session state for user and theme
 try:
-    init_session_state()
-    logger.info("Session state initialized successfully")
+    if 'initialized' not in st.session_state:
+        init_session_state()
+        st.session_state['initialized'] = True
+        logger.info("Session state initialized successfully")
+    logger.info("Session state check completed")
 except Exception as e:
     logger.error(f"Error initializing session state: {str(e)}")
     st.error("Error initializing session. Please refresh.")
     st.stop()
+
+# Remove any redirect-related session state
+if 'is_redirecting' in st.session_state:
+    del st.session_state['is_redirecting']
 
 # Title and description
 st.title("📈 Stock Data Dashboard")
@@ -54,7 +66,7 @@ st.markdown("""
 
 # Display login form if user is not authenticated
 try:
-    if not st.session_state.user:
+    if not st.session_state.get('user'):
         display_login_form()
     else:
         check_and_display_tutorial()
@@ -187,7 +199,13 @@ try:
 
         if st.session_state.user:
             st.markdown("---")
-            display_deployment_assistant()
+            # Assuming display_deployment_assistant exists in components
+            #  Replace with actual function call if available
+            try:
+                display_deployment_assistant()
+            except NameError:
+                logger.warning("display_deployment_assistant not found.")
+
 
     else:
         logger.warning(f"No data available for symbol: {symbol}")

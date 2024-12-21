@@ -3,8 +3,11 @@ headless = true
 address = "0.0.0.0"
 port = 5000
 baseUrlPath = ""
-enableCORS = false
-enableXsrfProtection = false
+enableCORS = true
+enableXsrfProtection = true
+maxUploadSize = 200
+enableWebsocketCompression = false
+runOnSave = true
 
 [theme]
 primaryColor = "#1f77b4"
@@ -14,6 +17,13 @@ textColor = "#262730"
 
 [browser]
 gatherUsageStats = false
+serverAddress = "0.0.0.0"
+serverPort = 5000
 
 [global]
 developmentMode = false
+showWarningOnDirectExecution = false
+
+[logger]
+level = "info"
+messageFormat = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

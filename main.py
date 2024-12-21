@@ -12,11 +12,12 @@ from components.theme import display_theme_toggle
 from utils import get_stock_data, get_dividend_data, download_csv
 from components.deployment_assistant import display_deployment_assistant
 
-# Set page config
+# Set page config with proper base URL handling
 st.set_page_config(
     page_title="Stock Data Dashboard",
     page_icon="📈",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # Initialize session state for user and theme

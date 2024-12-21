@@ -10,6 +10,7 @@ from components.tutorial import check_and_display_tutorial
 from components.auth import init_session_state, display_login_form
 from components.theme import display_theme_toggle
 from utils import get_stock_data, get_dividend_data, download_csv
+from components.deployment_assistant import display_deployment_assistant
 
 # Set page config
 st.set_page_config(
@@ -184,6 +185,9 @@ try:
         # Display watchlist with AI recommendations
         st.markdown("---")
         display_watchlist()
+        if st.session_state.user:  # Only show to logged-in users
+            st.markdown("---")
+            display_deployment_assistant()
     else:
         st.error("Unable to fetch data for the specified symbol.")
 

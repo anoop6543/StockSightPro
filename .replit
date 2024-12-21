@@ -32,7 +32,7 @@ waitForPort = 5000
 
 [deployment]
 deploymentTarget = "static"
-publicDir = "AnoopReplit"
+publicDir = "./static"
 
 [[ports]]
 localPort = 5000

@@ -28,18 +28,18 @@ st.set_page_config(
 # Initialize session state for user and theme
 init_session_state()
 
-# Display login form if user is not authenticated
-if not st.session_state.user:
-    display_login_form()
-else:
-    check_and_display_tutorial()
-
 # Title and description
 st.title("📈 Stock Data Dashboard")
 st.markdown("""
     Enter a stock symbol to view real-time data, financial metrics, and interactive charts.
     Data provided by Yahoo Finance.
 """)
+
+# Display login form if user is not authenticated
+if not st.session_state.user:
+    display_login_form()
+else:
+    check_and_display_tutorial()
 
 # Input section with responsive layout
 if st.session_state.get('mobile_view', False):
@@ -88,18 +88,15 @@ try:
             st.metric(
                 "Current Price",
                 f"${stock_data['Close'].iloc[-1]:.2f}",
-                f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%",
-                help="Latest stock price and daily change"
+                f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%"
             )
             st.metric(
                 "Volume",
-                f"{stock_data['Volume'].iloc[-1]:,.0f}",
-                help="Trading volume"
+                f"{stock_data['Volume'].iloc[-1]:,.0f}"
             )
             st.metric(
                 "Market Cap",
-                f"${info.get('marketCap', 0):,.0f}",
-                help="Total market capitalization"
+                f"${info.get('marketCap', 0):,.0f}"
             )
         else:
             # Desktop: Show metrics in columns
@@ -108,20 +105,17 @@ try:
                 st.metric(
                     "Current Price",
                     f"${stock_data['Close'].iloc[-1]:.2f}",
-                    f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%",
-                    help="Latest stock price and daily change"
+                    f"{((stock_data['Close'].iloc[-1] - stock_data['Close'].iloc[-2]) / stock_data['Close'].iloc[-2] * 100):.2f}%"
                 )
             with col2:
                 st.metric(
                     "Volume",
-                    f"{stock_data['Volume'].iloc[-1]:,.0f}",
-                    help="Trading volume"
+                    f"{stock_data['Volume'].iloc[-1]:,.0f}"
                 )
             with col3:
                 st.metric(
                     "Market Cap", 
-                    f"${info.get('marketCap', 0):,.0f}",
-                    help="Total market capitalization"
+                    f"${info.get('marketCap', 0):,.0f}"
                 )
 
         # Technical Indicators Selection
@@ -129,12 +123,12 @@ try:
         indicator_col1, indicator_col2 = st.columns(2)
 
         with indicator_col1:
-            show_sma = st.checkbox("Moving Averages", value=True, help="Show 20, 50, and 200-day Simple Moving Averages")
-            show_bollinger = st.checkbox("Bollinger Bands", help="Show Bollinger Bands (20-day, 2 standard deviations)")
+            show_sma = st.checkbox("Moving Averages", value=True)
+            show_bollinger = st.checkbox("Bollinger Bands")
 
         with indicator_col2:
-            show_rsi = st.checkbox("RSI", help="Show Relative Strength Index")
-            show_macd = st.checkbox("MACD", help="Show Moving Average Convergence Divergence")
+            show_rsi = st.checkbox("RSI")
+            show_macd = st.checkbox("MACD")
 
         # Create and display stock price chart with selected indicators
         show_indicators = {

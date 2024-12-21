@@ -31,7 +31,8 @@ args = "streamlit run main.py"
 waitForPort = 5000
 
 [deployment]
-run = ["sh", "-c", "streamlit run main.py"]
+deploymentTarget = "static"
+publicDir = "AnoopReplit"
 
 [[ports]]
 localPort = 5000

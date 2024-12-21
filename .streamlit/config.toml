@@ -15,3 +15,9 @@ primaryColor = "#1f77b4"
 backgroundColor = "#0E1117"
 secondaryBackgroundColor = "#1B1F27"
 textColor = "#FAFAFA"
+
+[browser]
+gatherUsageStats = false
+
+[global]
+developmentMode = false

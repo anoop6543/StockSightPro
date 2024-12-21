@@ -9,12 +9,6 @@ maxUploadSize = 200
 enableWebsocketCompression = false
 runOnSave = true
 
-[theme]
-primaryColor = "#1f77b4"
-backgroundColor = "#ffffff"
-secondaryBackgroundColor = "#f0f2f6"
-textColor = "#262730"
-
 [browser]
 gatherUsageStats = false
 serverAddress = "0.0.0.0"
